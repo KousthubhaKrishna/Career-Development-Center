@@ -1,14 +1,15 @@
 const express = require('express')
 const router = express.Router()
 const PlacementModel = require('../models/PlacementModel')
+const checkAuthToken = require('../middleware/checkAuthToken');
 
 // GET
 router.get("/", async (req, res) => {
     console.log("Querying Placements Data");
     var query = req.body;
     try {
-        const places = await PlacementModel.find(query);
-        res.json(places);
+        const placements = await PlacementModel.find(query);
+        res.json(placements);
     } catch (err) {
         res.json({ message: err.message });
     }
@@ -16,8 +17,8 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     console.log("Querying Placement Data");
     try {
-        const place = await PlacementModel.findById(req.params.id);
-        res.json(place);
+        const placement = await PlacementModel.findById(req.params.id);
+        res.json(placement);
     } catch (err) {
         res.status(404).json({ message: "Id not found." });
     }
@@ -25,7 +26,7 @@ router.get("/:id", async (req, res) => {
 
 
 // POST
-router.post("/", async (req, res) => {
+router.post("/", checkAuthToken, async (req, res) => {
     console.log("Adding New Placement");
     try {
         // Created
@@ -33,7 +34,6 @@ router.post("/", async (req, res) => {
         const savedPlace = await newPlace.save();
         res.status(201).json(savedPlace);
     } catch (err) {
-
         // Error : User Already Exists
         message = err.message
         if (err.code == 11000)
@@ -44,7 +44,7 @@ router.post("/", async (req, res) => {
 
 
 // PUT
-router.put("/:id", async (req, res) => {
+router.put("/:id", checkAuthToken, async (req, res) => {
     console.log("Updating Placement");
     try {
         var result = await PlacementModel.updateOne({ _id: req.params.id }, { $set: req.body });
@@ -55,7 +55,7 @@ router.put("/:id", async (req, res) => {
         res.status(404).json({ message: "Invalid Id" });
     }
 });
-router.put("/", async (req, res) => {
+router.put("/", checkAuthToken, async (req, res) => {
     console.log("Updating All Placement");
     try {
         var result = await PlacementModel.updateOne(req.body.conditions, { $set: req.body.updates });
@@ -68,7 +68,7 @@ router.put("/", async (req, res) => {
 
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkAuthToken, async (req, res) => {
     console.log("Delete Specific Placement");
     try {
         await PlacementModel.deleteOne({ _id: req.params.id })

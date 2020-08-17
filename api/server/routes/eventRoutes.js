@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const EventModel = require('../models/EventModel')
+const checkAuthToken = require('../middleware/checkAuthToken');
 
 // GET
 router.get("/", async (req, res) => {
@@ -25,7 +26,7 @@ router.get("/:id", async (req, res) => {
 
 
 // POST
-router.post("/", async (req, res) => {
+router.post("/", checkAuthToken, async (req, res) => {
     console.log("Adding New Event");
     try {
         // Created
@@ -44,7 +45,7 @@ router.post("/", async (req, res) => {
 
 
 // PUT
-router.put("/:id", async (req, res) => {
+router.put("/:id", checkAuthToken, async (req, res) => {
     console.log("Updating Event");
     try {
         var result = await EventModel.updateOne({ _id: req.params.id }, { $set: req.body });
@@ -55,7 +56,7 @@ router.put("/:id", async (req, res) => {
         res.status(404).json({ message: "Invalid Id" });
     }
 });
-router.put("/", async (req, res) => {
+router.put("/", checkAuthToken, async (req, res) => {
     console.log("Updating All Events");
     try {
         var result = await EventModel.updateOne(req.body.conditions, { $set: req.body.updates });
@@ -68,7 +69,7 @@ router.put("/", async (req, res) => {
 
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkAuthToken, async (req, res) => {
     console.log("Delete Specific Event");
     try {
         await EventModel.deleteOne({ _id: req.params.id })
