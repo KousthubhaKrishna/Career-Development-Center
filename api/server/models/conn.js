@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb+srv://cbit:cbit1234@cbit.nmmtx.mongodb.net/cdc?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
     console.log("Connection established to database..");
 });
 mongoose.set('useNewUrlParser', true);
