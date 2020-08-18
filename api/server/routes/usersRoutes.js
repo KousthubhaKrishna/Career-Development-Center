@@ -1,12 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const UserModel = require('../models/UserModel')
-const checkAuthToken = require('../middleware/checkAuthToken');
+const { PERMISSIONS, authUser } = require('../middleware/AuthUser')
 
 
 // GET
-// Should also authenticate if he/she is PC
-router.get("/", checkAuthToken, async (req, res) => {
+router.get("/", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Querying Users Data");
     var query = req.body;
     try {
@@ -16,7 +15,7 @@ router.get("/", checkAuthToken, async (req, res) => {
         res.json({ message: err.message });
     }
 });
-router.get("/:id", checkAuthToken, async (req, res) => {
+router.get("/:id", authUser(PERMISSIONS.LOW), async (req, res) => {
     console.log("Querying Specific User Data");
     try {
         const user = await UserModel.findById(req.params.id);
@@ -28,7 +27,8 @@ router.get("/:id", checkAuthToken, async (req, res) => {
 
 
 // POST
-router.post("/", checkAuthToken, async (req, res) => {
+// Should validate for admin when entering admin or pc role
+router.post("/", authUser(PERMISSIONS.LOW), async (req, res) => {
     console.log("Adding New User");
     try {
         // Created
@@ -48,7 +48,7 @@ router.post("/", checkAuthToken, async (req, res) => {
 
 
 // PUT
-router.put("/:id", checkAuthToken, async (req, res) => {
+router.put("/:id", authUser(PERMISSIONS.LOW), async (req, res) => {
     console.log("Updating User");
     try {
         var result = await UserModel.updateOne({ _id: req.params.id }, { $set: req.body });
@@ -59,7 +59,7 @@ router.put("/:id", checkAuthToken, async (req, res) => {
         res.status(404).json({ message: "Invalid Id" });
     }
 });
-router.put("/", checkAuthToken, async (req, res) => {
+router.put("/", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Updating All Users");
     try {
         var result = await UserModel.updateOne(req.body.conditions, { $set: req.body.updates });
@@ -72,7 +72,7 @@ router.put("/", checkAuthToken, async (req, res) => {
 
 
 // DELETE
-router.delete("/:id", checkAuthToken, async (req, res) => {
+router.delete("/:id", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Delete Specific User");
     try {
         await UserModel.deleteOne({ _id: req.params.id })

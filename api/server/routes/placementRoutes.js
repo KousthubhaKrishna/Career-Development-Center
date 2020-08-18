@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const PlacementModel = require('../models/PlacementModel')
-const checkAuthToken = require('../middleware/checkAuthToken');
+const { PERMISSIONS, authUser } = require('../middleware/AuthUser')
 
 // GET
 router.get("/", async (req, res) => {
@@ -26,7 +26,7 @@ router.get("/:id", async (req, res) => {
 
 
 // POST
-router.post("/", checkAuthToken, async (req, res) => {
+router.post("/", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Adding New Placement");
     try {
         // Created
@@ -44,7 +44,7 @@ router.post("/", checkAuthToken, async (req, res) => {
 
 
 // PUT
-router.put("/:id", checkAuthToken, async (req, res) => {
+router.put("/:id", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Updating Placement");
     try {
         var result = await PlacementModel.updateOne({ _id: req.params.id }, { $set: req.body });
@@ -55,7 +55,7 @@ router.put("/:id", checkAuthToken, async (req, res) => {
         res.status(404).json({ message: "Invalid Id" });
     }
 });
-router.put("/", checkAuthToken, async (req, res) => {
+router.put("/", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Updating All Placement");
     try {
         var result = await PlacementModel.updateOne(req.body.conditions, { $set: req.body.updates });
@@ -68,7 +68,7 @@ router.put("/", checkAuthToken, async (req, res) => {
 
 
 // DELETE
-router.delete("/:id", checkAuthToken, async (req, res) => {
+router.delete("/:id", authUser(PERMISSIONS.MED), async (req, res) => {
     console.log("Delete Specific Placement");
     try {
         await PlacementModel.deleteOne({ _id: req.params.id })

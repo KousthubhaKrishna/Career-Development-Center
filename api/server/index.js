@@ -1,6 +1,6 @@
 // Required Imports
 require('dotenv').config();
-require("./models/conn");
+require("./models/Conn");
 const AuthModel = require('./models/AuthModel');
 const express = require('express');
 const cors = require('cors');
